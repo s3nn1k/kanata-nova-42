@@ -5,8 +5,6 @@ REPOSITORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_PATH="/etc/kanata/kanata.kbd"
 CONFIG_SOURCE="$REPOSITORY/configs/cfqv8.kbd"
 UNIT_SOURCE="$REPOSITORY/kanata.service"
-LEGACY_UNIT="keyd.service"
-LEGACY_RESUME_HOOK="/usr/lib/systemd/system-sleep/xremap-resume.sh"
 KANATA_VERSION="1.12.0"
 KANATA_ZIP_SHA256="0bedd91567c5d7c54679061baadc37e4f83fb71750003999bc1d11f2c9754f36"
 KANATA_URL="https://github.com/jtroo/kanata/releases/download/v${KANATA_VERSION}/linux-binaries-x64.zip"
@@ -69,14 +67,9 @@ if [[ -d /run/systemd/system ]] && command -v systemctl >/dev/null; then
     systemctl daemon-reload
     systemctl enable kanata
     systemctl restart kanata
-    if systemctl list-unit-files "$LEGACY_UNIT" --no-legend | grep -q .; then
-        systemctl disable --now "$LEGACY_UNIT"
-    fi
-    rm -f /etc/keyd/cfqv8.conf /etc/keyd/nova.conf /etc/keyd/default.conf
 else
     echo "apply: systemd не обнаружен - перезапусти kanata вручную" >&2
 fi
-rm -f "$LEGACY_RESUME_HOOK"
 
 if command -v grubby >/dev/null; then
     if grubby --update-kernel=ALL --args="i8042.reset=1"; then

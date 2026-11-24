@@ -1,8 +1,8 @@
 # kanata-nova-42
 
-Раскладка nova-42 для встроенной JIS-клавиатуры Panasonic Let's note CF-QV8, перенесённая
-с keyd на kanata. kanata читает клавиатуру по имени "AT Translated Set 2 keyboard" и
-выпускает виртуальную "kanata virtual keyboard"; конфиг на машину - configs/cfqv8.kbd.
+Раскладка nova-42 для встроенной JIS-клавиатуры Panasonic Let's note CF-QV8. kanata читает
+клавиатуру по имени "AT Translated Set 2 keyboard" и выпускает виртуальную "kanata virtual
+keyboard"; конфиг на машину - configs/cfqv8.kbd.
 
 ## Карта раскладки
 
@@ -30,15 +30,13 @@ sudo ./apply.sh
 ```
 
 apply.sh ставит конфиг в /etc/kanata/kanata.kbd, прогоняет kanata --check (при провале
-откатывает предыдущий конфиг), устанавливает kanata.service, гасит legacy-keyd и включает
-i8042.reset=1.
+откатывает предыдущий конфиг), устанавливает kanata.service и включает i8042.reset=1.
 
 ## xremap
 
-Эксперимент Super-C/V: xremap слушает только "kanata virtual keyboard". Ставится и
-запускается bootstrap'ом dotfiles-fedora автоматически; отдельный запуск
-./scripts/xremap-apply.sh из активной Sway-сессии - для переустановки или отладки. Откат:
-systemctl --user disable --now xremap.service.
+Super-C/V -> буфер обмена: глобально Ctrl+C/V, в foot - Ctrl+Shift+C/V. xremap слушает
+только "kanata virtual keyboard"; ./scripts/xremap-apply.sh из активной Sway-сессии -
+установка или переустановка. Откат: systemctl --user disable --now xremap.service.
 
 ## Откат kanata
 
