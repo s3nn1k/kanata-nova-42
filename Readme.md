@@ -21,7 +21,8 @@
 
 ## Установка
 
-- Fedora: sudo dnf copr enable alternateved/kanata && sudo dnf install kanata
+apply.sh сам ставит pinned-бинарник kanata v1.12.0 из GitHub releases (проверка
+sha256) в /usr/local/bin; нужен только curl.
 
 ```bash
 sudo ./apply.sh

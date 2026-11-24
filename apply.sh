@@ -7,6 +7,10 @@ CONFIG_SOURCE="$REPOSITORY/configs/cfqv8.kbd"
 UNIT_SOURCE="$REPOSITORY/kanata.service"
 LEGACY_UNIT="keyd.service"
 LEGACY_RESUME_HOOK="/usr/lib/systemd/system-sleep/xremap-resume.sh"
+KANATA_VERSION="1.12.0"
+KANATA_SHA256="d577d3b22ec1c49a9a766afb5f75197139b660920c237102e05099a3572295"
+KANATA_URL="https://github.com/jtroo/kanata/releases/download/v${KANATA_VERSION}/kanata_linux_x64"
+KANATA_BIN="/usr/local/bin/kanata"
 
 die() {
     echo "apply: $1" >&2
@@ -21,8 +25,22 @@ restore_previous() {
     fi
 }
 
+install_kanata() {
+    if [[ -f "$KANATA_BIN" ]] && printf '%s  %s\n' "$KANATA_SHA256" "$KANATA_BIN" | sha256sum --check --status; then
+        return
+    fi
+    local staged
+    staged="$(mktemp)"
+    curl --fail --location --show-error --retry 2 --connect-timeout 15 --max-time 300 \
+        --proto '=https' --tlsv1.2 --output "$staged" "$KANATA_URL"
+    printf '%s  %s\n' "$KANATA_SHA256" "$staged" | sha256sum --check
+    install -m 755 "$staged" "$KANATA_BIN"
+    rm -f "$staged"
+}
+
 [[ $EUID -eq 0 ]] || die "запускай через sudo: sudo $0"
-command -v kanata >/dev/null || die "kanata не найден - установи: sudo dnf copr enable alternateved/kanata && sudo dnf install kanata"
+command -v curl >/dev/null || die "curl не найден - нужен для установки kanata"
+install_kanata
 [[ -f "$CONFIG_SOURCE" ]] || die "нет конфига $CONFIG_SOURCE"
 [[ -f "$UNIT_SOURCE" ]] || die "нет юнита $UNIT_SOURCE"
 
@@ -39,7 +57,7 @@ if [[ -f "$CONFIG_PATH" ]]; then
 fi
 install -m 644 "$CONFIG_SOURCE" "$CONFIG_PATH"
 
-if ! kanata --cfg "$CONFIG_PATH" --check; then
+if ! "$KANATA_BIN" --cfg "$CONFIG_PATH" --check; then
     restore_previous
     die "kanata --check провалился - предыдущий конфиг восстановлен"
 fi

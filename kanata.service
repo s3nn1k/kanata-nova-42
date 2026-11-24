@@ -5,7 +5,7 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/kanata --cfg /etc/kanata/kanata.kbd
+ExecStart=/usr/local/bin/kanata --cfg /etc/kanata/kanata.kbd
 Restart=always
 RestartSec=2
 
