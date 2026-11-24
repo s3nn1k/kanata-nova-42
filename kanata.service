@@ -1,0 +1,13 @@
+[Unit]
+Description=nova-42 key remapping daemon
+After=systemd-udevd.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/kanata --cfg /etc/kanata/kanata.kbd
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
