@@ -21,8 +21,8 @@
 
 ## Установка
 
-apply.sh сам ставит pinned-бинарник kanata v1.12.0 из GitHub releases (проверка
-sha256) в /usr/local/bin; нужен только curl.
+apply.sh сам ставит pinned-бинарник kanata v1.12.0 из GitHub releases (zip с проверкой
+sha256) в /usr/local/bin; нужны curl и unzip.
 
 ```bash
 sudo ./apply.sh
