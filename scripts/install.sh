@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPOSITORY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ "$(id -u)" -eq 0 ]]; then
+    echo "Под root запускать не нужно: sudo внутри" >&2
+    exit 1
+fi
+
+REPOSITORY="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIG_PATH="/etc/kanata/kanata.kbd"
 CONFIG_SOURCE="$REPOSITORY/configs/cfqv8.kbd"
 UNIT_SOURCE="$REPOSITORY/kanata.service"
@@ -11,15 +16,15 @@ KANATA_URL="https://github.com/jtroo/kanata/releases/download/v${KANATA_VERSION}
 KANATA_BIN="/usr/local/bin/kanata"
 
 die() {
-    echo "apply: $1" >&2
+    echo "install: $1" >&2
     exit 1
 }
 
 restore_previous() {
     if [[ -n "$previous_config" ]]; then
-        cp "$previous_config" "$CONFIG_PATH"
+        sudo cp "$previous_config" "$CONFIG_PATH"
     else
-        rm -f "$CONFIG_PATH"
+        sudo rm -f "$CONFIG_PATH"
     fi
 }
 
@@ -33,11 +38,10 @@ install_kanata() {
         --proto '=https' --tlsv1.2 --output "$staged" "$KANATA_URL"
     printf '%s  %s\n' "$KANATA_ZIP_SHA256" "$staged" | sha256sum --check
     unzip -p "$staged" kanata_linux_x64 > "${staged}.bin"
-    install -m 755 "${staged}.bin" "$KANATA_BIN"
+    sudo install -m 755 "${staged}.bin" "$KANATA_BIN"
     rm -f "$staged" "${staged}.bin"
 }
 
-[[ $EUID -eq 0 ]] || die "запускай через sudo: sudo $0"
 command -v curl >/dev/null || die "curl не найден - нужен для установки kanata"
 command -v unzip >/dev/null || die "unzip не найден - нужен для установки kanata"
 install_kanata
@@ -50,35 +54,35 @@ cleanup() {
 }
 trap cleanup EXIT
 
-install -d -m 755 /etc/kanata
+sudo install -d -m 755 /etc/kanata
 if [[ -f "$CONFIG_PATH" ]]; then
     previous_config="$(mktemp)"
     cp "$CONFIG_PATH" "$previous_config"
 fi
-install -m 644 "$CONFIG_SOURCE" "$CONFIG_PATH"
+sudo install -m 644 "$CONFIG_SOURCE" "$CONFIG_PATH"
 
 if ! "$KANATA_BIN" --cfg "$CONFIG_PATH" --check; then
     restore_previous
     die "kanata --check провалился - предыдущий конфиг восстановлен"
 fi
 
-install -m 644 "$UNIT_SOURCE" /etc/systemd/system/kanata.service
+sudo install -m 644 "$UNIT_SOURCE" /etc/systemd/system/kanata.service
 if [[ -d /run/systemd/system ]] && command -v systemctl >/dev/null; then
-    systemctl daemon-reload
-    systemctl enable kanata
-    systemctl restart kanata
+    sudo systemctl daemon-reload
+    sudo systemctl enable kanata
+    sudo systemctl restart kanata
 else
-    echo "apply: systemd не обнаружен - перезапусти kanata вручную" >&2
+    echo "install: systemd не обнаружен - перезапусти kanata вручную" >&2
 fi
 
 if command -v grubby >/dev/null; then
-    if grubby --update-kernel=ALL --args="i8042.reset=1"; then
-        echo "apply: i8042.reset=1 включён для всех ядер - вступит в силу после перезагрузки"
+    if sudo grubby --update-kernel=ALL --args="i8042.reset=1"; then
+        echo "install: i8042.reset=1 включён для всех ядер - вступит в силу после перезагрузки"
     else
-        echo "apply: grubby не обновил kernel-параметры - включи i8042.reset=1 вручную" >&2
+        echo "install: grubby не обновил kernel-параметры - включи i8042.reset=1 вручную" >&2
     fi
 else
-    echo "apply: grubby не найден, включи i8042.reset=1 вручную" >&2
+    echo "install: grubby не найден, включи i8042.reset=1 вручную" >&2
 fi
 
-echo "apply: $CONFIG_PATH установлен, служба kanata запущена"
+echo "install: $CONFIG_PATH установлен, служба kanata запущена"

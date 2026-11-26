@@ -31,6 +31,7 @@ require_host() {
     [[ "$(uname -s)" == Linux && "$(uname -m)" == x86_64 ]] ||
         die "requires Fedora x86_64 Linux; do not run this installer on macOS"
     [[ -r /etc/os-release ]] || die "cannot identify Fedora"
+    # shellcheck disable=SC1091
     . /etc/os-release
     [[ "$ID" == fedora ]] || die "requires Fedora"
     [[ "$CONFIGURATION_HOME" == /* ]] || die "XDG_CONFIG_HOME must be an absolute path"

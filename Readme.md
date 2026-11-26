@@ -21,15 +21,15 @@ keyboard"; конфиг на машину - configs/cfqv8.kbd.
 
 ## Установка
 
-apply.sh сам ставит pinned-бинарник kanata v1.12.0 из GitHub releases (zip с проверкой
+scripts/install.sh сам ставит pinned-бинарник kanata v1.12.0 из GitHub releases (zip с проверкой
 sha256) в /usr/local/bin; нужны curl и unzip.
 
 ```bash
-sudo ./apply.sh
+./scripts/install.sh
 ./scripts/xremap-apply.sh
 ```
 
-apply.sh ставит конфиг в /etc/kanata/kanata.kbd, прогоняет kanata --check (при провале
+scripts/install.sh ставит конфиг в /etc/kanata/kanata.kbd, прогоняет kanata --check (при провале
 откатывает предыдущий конфиг), устанавливает kanata.service и включает i8042.reset=1.
 
 ## xremap
