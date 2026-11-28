@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPOSITORY="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CACHE="$HOME/.cache/dotfiles-fedora"
+CACHE="$HOME/.cache/kanata-nova-42"
 LOCAL_BIN="$HOME/.local/bin"
 CONFIGURATION_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 
